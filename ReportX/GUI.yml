@@ -1,0 +1,19 @@
+GUI:
+    gui-ismi: 'Raporluyorsunuz: %raporlanan%'
+    genişlik: 1
+    '1':
+      eşya:
+        materyal: book
+        isim: 'Kategori: Hile'
+        parlat: true
+        miktar: 2
+        açıklama: 'k-açıklama!hile'
+      slot: 4
+      tıklayınca:
+        sol-tıklama:
+          yürüt: kategori!hile
+        sağ-tıklama:
+          yürüt: kategori!sohbet
+        diğer-tıklama:
+          yürüt: kategori!dolandırıcılık
+         

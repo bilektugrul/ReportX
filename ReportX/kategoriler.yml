@@ -1,0 +1,24 @@
+kategoriler:
+  'hile':
+    açıklama: 
+    - '&7Hile kullanan oyuncuları raporlamak için'
+    - '&7bu kategoriyi kullanabilirsiniz.'
+    GUI:
+      gui-ismi: 'Raporluyorsunuz: &e%raporlanan%'
+      eşyalar:
+        '1':
+          eşya:
+            materyal: book
+            isim: 'Kill Aura'
+            parlat: true
+            miktar: 1
+            açıklama:
+            - ''
+          rapor-sebebi: Kill Aura
+          slot: 1
+          tıklayınca:
+            direkt-raporla: true
+            diğer-komutlar:
+            - ''
+          
+         
