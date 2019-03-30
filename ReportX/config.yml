@@ -1,0 +1,6 @@
+prefix: '&8[&3ReportX&8]'
+admin-yetkisi: reportx.admin
+yetkin-yok-mesajı: '%prefix% &cI''m sorry %player_name%, you don''t have the required
+    permission for this command.'
+oyuncuya-yardım-mesajı:
+- '%prefix% &6Herhangi bir oyuncuyu raporlamak için: /rapor <oyuncu>'
