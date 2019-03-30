@@ -1,4 +1,4 @@
-#ReportX - v0.1
+#ReportX - v0.2
 import:
 	me.clip.placeholderapi.PlaceholderAPI
 expression placeholder parsed %$strings% [from %-player%]:
@@ -7,20 +7,25 @@ expression placeholder parsed %$strings% [from %-player%]:
 		loop expressions-1:
 			add PlaceholderAPI.setPlaceholders(expression-2, loop-value) to {_return::*}
 		return {_return::*}
-command /reportx [<text="help">] [<text>] [<text>] [<text>] [<text>]:
+command /reportx [<text="yardım">] [<text>] [<text>] [<text>] [<text>]:
+	aliases: rapor, raporla, report
 	trigger:
-		if executor has permission "%{ReportX::adminPerm}%":
-			if arg-1 is "help":
-				send "%{ReportX::helpCMD::*}%"
-			else if arg-1 is "reload" or "rl":
+		if arg-1 is "yardım":
+			send "%{ReportX::helpCMD::player::*}%"
+		else if arg-1 parsed as player is online:
+			rxOpenGUI(player, arg-1 parsed as player, "ReportX/GUI", "GUI.slotlar", yaml value "GUI.genişlik" from "ReportX/GUI", yaml value "GUI.gui-ismi" from "ReportX/GUI")
+		else if executor has permission "%{ReportX::adminPerm}%":
+			if arg-1 is "reload" or "rl":
 				if arg-2 isn't set:
 					set {_systemMS} to current system milliseconds
 					if dir "plugins/ReportX/" doesn't exist:
 						create dir "plugins/ReportX/GUIs/" 
 						set file contents of "plugins/ReportX/config.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/config.yml"
 						set file contents of "plugins/ReportX/config.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/GUI.yml"
+						set file contents of "plugins/ReportX/kategoriler.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/kategoriler.yml"
 					execute executor command "reportx reload config"
 					execute executor command "reportx reload kategoriler"
+					execute executor command "reportx reload gui"
 					if line 1 in file "plugins/Skript/scripts/%script's name%.sk" isn't line 1 from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX.sk":
 						send "%{ReportX::prefix}% &cReportX bir güncellemeye sahip." and "%{ReportX::prefix}% &cGüncellemeyi yapmadığın taktirde birçok sorunla karşılaşabilirsin, lütfen güncelle." to executor
 					else:
@@ -34,9 +39,40 @@ command /reportx [<text="help">] [<text>] [<text>] [<text>] [<text>]:
 					set {ReportX::noPermMSG} to yaml value "yetkin-yok-mesajı" from "ReportX/config"
 					set {ReportX::helpCMD::player::*} to colored join yaml list "oyuncuya-yardım-mesajı" from "ReportX/config" with last character of system property line separator
 					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::noPermMSG}
-					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::helpCMD::*}
+					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::helpCMD::player::*}
 					send "%{ReportX::prefix}% &2Config dosyasını işlemi başarıyla tamamlandı."
 				else if arg-2 is "kategoriler" or "kategori":
 					load yaml "plugins/ReportX/kategoriler.yml" as "ReportX/Kategoriler"
 					save yaml "ReportX/Kategoriler" without extra lines between nodes
 					send "%{ReportX::prefix}% &2Kategoriler dosyasını yenileme işlemi başarıyla tamamlandı."
+				else if arg-2 is "gui":
+					load yaml "plugins/ReportX/GUI.yml" as "ReportX/GUI"
+					save yaml "ReportX/GUI" without extra lines between nodes
+					send "%{ReportX::prefix}% &2GUI dosyasını yenileme işlemi başarıyla tamamlandı."
+function rxOpenGUI(p: player, r: player, yaml: text, yvalue: text, genişlik: integer, isim: text):
+	set {_GUI::size} to {_genişlik}
+	set {_GUI::name} to placeholder parsed colored {_isim}
+	replace "%%raporlanan%%" with "%{_r}%" in {_GUI::name}
+	open virtual chest inventory named {_GUI::name} with size {_GUI::size} to {_p}
+	loop yaml node keys "%{_yvalue}%" from "%{_yaml}%":
+		set {_GUI::value} to loop-value
+		set {_GUI::item} to yaml value "%{_yvalue}%.%loop-value%.eşya.materyal" from "%{_yaml}%" parsed as item
+		set {_GUI::itemName} to yaml value "%{_yvalue}%.%loop-value%.eşya.isim" from "%{_yaml}%"
+		if yaml value "%{_yvalue}%.%loop-value%.eşya.parlat" from "%{_yaml}%" is true:
+			set {_GUI::item} to shiny {_GUI::item}
+		set {_GUI::slot} to yaml value "%{_yvalue}%.%loop-value%.slot" from "%{_yaml}%"
+		if yaml value "%{_yvalue}%.%loop-value%.eşya.açıklama" from "%{_yaml}%" is set:
+			if yaml value "%{_yvalue}%.%loop-value%.eşya.açıklama" from "%{_yaml}%" contains "k-açıklama!":
+				set {_kategori} to yaml value "%{_yvalue}%.%loop-value%.eşya.açıklama" from "%{_yaml}%"
+				set {_kategori} to last (length of {_kategori} - 11) characters of {_kategori}
+				set {_GUI::itemLore::*} to placeholder parsed yaml list "kategoriler.%{_kategori}%.açıklama" from "ReportX/Kategoriler"
+		make gui slot {_GUI::slot} of {_p} with {_GUI::item} named {_GUI::itemName} with lore {_GUI::itemLore::*} to run:
+			close player's inventory
+			if yaml value "%{_yvalue}%.%{_GUI::value}%.tıklayınca.yürüt" from "%{_yaml}%" is "raporla":
+				raporla({_p}, {_r}, yaml value "%{_yvalue}%.%{_GUI::value}%.rapor-sebebi" from "%{_yaml}%")
+			else if yaml value "%{_yvalue}%.%{_GUI::value}%.tıklayınca.yürüt" from "%{_yaml}%" contains "kategori":
+				rxOpenGUI({_p}, {_r}, "ReportX/Kategoriler", "kategoriler.%{_kategori}%.GUI.slotlar", yaml value "kategoriler.%{_kategori}%.GUI.genişlik" from "ReportX/Kategoriler", yaml value "kategoriler.%{_kategori}%.GUI.gui-ismi" from "ReportX/Kategoriler")
+function raporla(p: player, r: player, s: text):
+	broadcast "%{_p}% %{_r}% %{_s}%"
+on load:
+	execute console command "reportx reload"
