@@ -1,0 +1,42 @@
+#ReportX - v0.1
+import:
+	me.clip.placeholderapi.PlaceholderAPI
+expression placeholder parsed %$strings% [from %-player%]:
+	return type: string
+	get:
+		loop expressions-1:
+			add PlaceholderAPI.setPlaceholders(expression-2, loop-value) to {_return::*}
+		return {_return::*}
+command /reportx [<text="help">] [<text>] [<text>] [<text>] [<text>]:
+	trigger:
+		if executor has permission "%{ReportX::adminPerm}%":
+			if arg-1 is "help":
+				send "%{ReportX::helpCMD::*}%"
+			else if arg-1 is "reload" or "rl":
+				if arg-2 isn't set:
+					set {_systemMS} to current system milliseconds
+					if dir "plugins/ReportX/" doesn't exist:
+						create dir "plugins/ReportX/GUIs/" 
+						set file contents of "plugins/ReportX/config.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/config.yml"
+						set file contents of "plugins/ReportX/config.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/GUI.yml"
+					execute executor command "reportx reload config"
+					execute executor command "reportx reload kategoriler"
+					if line 1 in file "plugins/Skript/scripts/%script's name%.sk" isn't line 1 from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX.sk":
+						send "%{ReportX::prefix}% &cReportX bir güncellemeye sahip." and "%{ReportX::prefix}% &cGüncellemeyi yapmadığın taktirde birçok sorunla karşılaşabilirsin, lütfen güncelle." to executor
+					else:
+						send "%{ReportX::prefix}% &2ReportX eklentisinin son sürümünü kullanıyorsun!" and "%{ReportX::prefix}% &2Teşekkürler!" to executor
+					send "%{ReportX::prefix}% &2Yenileme işlemi başarıyla tamamlandı. &8(&e%difference between {_systemMS} and current system milliseconds% ms&8)" to executor
+				else if arg-2 is "config":
+					load yaml "plugins/ReportX/config.yml" as "ReportX/config"
+					save yaml "ReportX/config" without extra lines between nodes
+					set {ReportX::adminPerm} to yaml value "admin-yetkisi" from "ReportX/config"
+					set {ReportX::prefix} to yaml value "prefix" from "ReportX/config"
+					set {ReportX::noPermMSG} to yaml value "yetkin-yok-mesajı" from "ReportX/config"
+					set {ReportX::helpCMD::player::*} to colored join yaml list "oyuncuya-yardım-mesajı" from "ReportX/config" with last character of system property line separator
+					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::noPermMSG}
+					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::helpCMD::*}
+					send "%{ReportX::prefix}% &2Config dosyasını işlemi başarıyla tamamlandı."
+				else if arg-2 is "kategoriler" or "kategori":
+					load yaml "plugins/ReportX/kategoriler.yml" as "ReportX/Kategoriler"
+					save yaml "ReportX/Kategoriler" without extra lines between nodes
+					send "%{ReportX::prefix}% &2Kategoriler dosyasını yenileme işlemi başarıyla tamamlandı."
