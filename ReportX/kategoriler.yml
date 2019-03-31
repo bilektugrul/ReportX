@@ -10,10 +10,11 @@ kategoriler:
                 '1':
                     eşya:
                         materyal: book
-                        isim: Kill Aura
+                        isim: '&eKill Aura'
                         parlat: true
                         açıklama:
-                        - ''
+                        - '&aTıklayarak rapor sebebini'
+                        - '&aKill Aura olarak seçersin.'
                     rapor-sebebi: Kill Aura
                     slot: 0
                     tıklayınca:
@@ -21,10 +22,11 @@ kategoriler:
                 '2':
                     eşya:
                         materyal: book
-                        isim: Flight
+                        isim: '&eFlight'
                         parlat: true
                         açıklama:
-                        - ''
+                        - '&aTıklayarak rapor sebebini'
+                        - '&aFlight olarak seçersin.'
                     rapor-sebebi: Flight
                     slot: 0
                     tıklayınca:
@@ -41,10 +43,11 @@ kategoriler:
                 '1':
                     eşya:
                         materyal: book
-                        isim: Küfür
+                        isim: '&eKüfür'
                         parlat: true
                         açıklama:
-                        - ''
+                        - '&aTıklayarak rapor sebebini'
+                        - '&aKüfür olarak seçersin.'
                     rapor-sebebi: Küfür
                     slot: 0
                     tıklayınca:
@@ -52,11 +55,12 @@ kategoriler:
                 '2':
                     eşya:
                         materyal: book
-                        isim: Hakaret
+                        isim: '&eHakaret'
                         parlat: true
                         açıklama:
-                        - ''
+                        - '&aTıklayarak rapor sebebini'
+                        - '&aHakaret olarak seçersin.'
                     rapor-sebebi: Hakaret
-                    slot: 0
+                    slot: 1
                     tıklayınca:
                         yürüt: raporla
