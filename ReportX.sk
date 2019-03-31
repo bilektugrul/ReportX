@@ -1,4 +1,4 @@
-#ReportX - v0.2
+#ReportX - v0.3
 import:
 	me.clip.placeholderapi.PlaceholderAPI
 expression placeholder parsed %$strings% [from %-player%]:
@@ -11,9 +11,16 @@ command /reportx [<text="yardım">] [<text>] [<text>] [<text>] [<text>]:
 	aliases: rapor, raporla, report
 	trigger:
 		if arg-1 is "yardım":
-			send "%{ReportX::helpCMD::player::*}%"
+			if player doesn't have permission "%{ReportX::adminPerm}%":
+				send "%placeholder parsed {ReportX::helpCMD::player::*} from player%"
+			else:
+				send "%placeholder parsed {ReportX::helpCMD::admin::*} from player%"
 		else if arg-1 parsed as player is online:
-			rxOpenGUI(player, arg-1 parsed as player, "ReportX/GUI", "GUI.slotlar", yaml value "GUI.genişlik" from "ReportX/GUI", yaml value "GUI.gui-ismi" from "ReportX/GUI")
+			if arg-1 parsed as player isn't player:
+				if ip of arg-1 parsed as player isn't ip of player:
+					if arg-1 parsed as player doesn't have permission "reportx.admin":
+						if {ReportX::yetkililer::%arg-1%} isn't set:
+							rxOpenGUI(player, arg-1 parsed as player, "ReportX/GUI", "GUI.slotlar", yaml value "GUI.genişlik" from "ReportX/GUI", yaml value "GUI.gui-ismi" from "ReportX/GUI")
 		else if executor has permission "%{ReportX::adminPerm}%":
 			if arg-1 is "reload" or "rl":
 				if arg-2 isn't set:
@@ -21,11 +28,12 @@ command /reportx [<text="yardım">] [<text>] [<text>] [<text>] [<text>]:
 					if dir "plugins/ReportX/" doesn't exist:
 						create dir "plugins/ReportX/GUIs/" 
 						set file contents of "plugins/ReportX/config.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/config.yml"
-						set file contents of "plugins/ReportX/config.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/GUI.yml"
+						set file contents of "plugins/ReportX/GUI.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/GUI.yml"
 						set file contents of "plugins/ReportX/kategoriler.yml" to contents from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX/kategoriler.yml"
 					execute executor command "reportx reload config"
 					execute executor command "reportx reload kategoriler"
 					execute executor command "reportx reload gui"
+					execute executor command "reportx reload mesajlar"
 					if line 1 in file "plugins/Skript/scripts/%script's name%.sk" isn't line 1 from url "https://raw.githubusercontent.com/bilektugrul/ReportX/master/ReportX.sk":
 						send "%{ReportX::prefix}% &cReportX bir güncellemeye sahip." and "%{ReportX::prefix}% &cGüncellemeyi yapmadığın taktirde birçok sorunla karşılaşabilirsin, lütfen güncelle." to executor
 					else:
@@ -36,10 +44,16 @@ command /reportx [<text="yardım">] [<text>] [<text>] [<text>] [<text>]:
 					save yaml "ReportX/config" without extra lines between nodes
 					set {ReportX::adminPerm} to yaml value "admin-yetkisi" from "ReportX/config"
 					set {ReportX::prefix} to yaml value "prefix" from "ReportX/config"
+					set {ReportX::yetkililer::*} to yaml list "yetkililer" from "ReportX/config"
+				else if arg-2 is "mesajlar", "msj", "messages" or "msjs":
+					load yaml "plugins/ReportX/mesajlar.yml" as "ReportX/mesajlar"
+					save yaml "ReportX/mesajlar" without extra lines between nodes
 					set {ReportX::noPermMSG} to yaml value "yetkin-yok-mesajı" from "ReportX/config"
-					set {ReportX::helpCMD::player::*} to colored join yaml list "oyuncuya-yardım-mesajı" from "ReportX/config" with last character of system property line separator
+					set {ReportX::helpCMD::player::*} to colored join yaml list "oyuncuya-yardım-mesajı" from "ReportX/mesajlar" with last character of system property line separator
+					set {ReportX::helpCMD::admin::*} to colored join yaml list "yetkiliye-yardım-mesajı" from "ReportX/mesajlar" with last character of system property line separator
 					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::noPermMSG}
 					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::helpCMD::player::*}
+					replace "%%prefix%%" with {ReportX::prefix} in {ReportX::helpCMD::admin::*}
 					send "%{ReportX::prefix}% &2Config dosyasını işlemi başarıyla tamamlandı."
 				else if arg-2 is "kategoriler" or "kategori":
 					load yaml "plugins/ReportX/kategoriler.yml" as "ReportX/Kategoriler"
@@ -58,6 +72,7 @@ function rxOpenGUI(p: player, r: player, yaml: text, yvalue: text, genişlik: in
 		set {_GUI::value} to loop-value
 		set {_GUI::item} to yaml value "%{_yvalue}%.%loop-value%.eşya.materyal" from "%{_yaml}%" parsed as item
 		set {_GUI::itemName} to yaml value "%{_yvalue}%.%loop-value%.eşya.isim" from "%{_yaml}%"
+		set {_GUI::kategori} to yaml value "%{_yvalue}%.%loop-value%.kategori" from "%{_yaml}%"
 		if yaml value "%{_yvalue}%.%loop-value%.eşya.parlat" from "%{_yaml}%" is true:
 			set {_GUI::item} to shiny {_GUI::item}
 		set {_GUI::slot} to yaml value "%{_yvalue}%.%loop-value%.slot" from "%{_yaml}%"
@@ -69,10 +84,17 @@ function rxOpenGUI(p: player, r: player, yaml: text, yvalue: text, genişlik: in
 		make gui slot {_GUI::slot} of {_p} with {_GUI::item} named {_GUI::itemName} with lore {_GUI::itemLore::*} to run:
 			close player's inventory
 			if yaml value "%{_yvalue}%.%{_GUI::value}%.tıklayınca.yürüt" from "%{_yaml}%" is "raporla":
-				raporla({_p}, {_r}, yaml value "%{_yvalue}%.%{_GUI::value}%.rapor-sebebi" from "%{_yaml}%")
+				raporla({_p}, {_r}, yaml value "%{_yvalue}%.%{_GUI::value}%.rapor-sebebi" from "%{_yaml}%", {_GUI::kategori})
 			else if yaml value "%{_yvalue}%.%{_GUI::value}%.tıklayınca.yürüt" from "%{_yaml}%" contains "kategori":
-				rxOpenGUI({_p}, {_r}, "ReportX/Kategoriler", "kategoriler.%{_kategori}%.GUI.slotlar", yaml value "kategoriler.%{_kategori}%.GUI.genişlik" from "ReportX/Kategoriler", yaml value "kategoriler.%{_kategori}%.GUI.gui-ismi" from "ReportX/Kategoriler")
-function raporla(p: player, r: player, s: text):
-	broadcast "%{_p}% %{_r}% %{_s}%"
+				rxOpenGUI({_p}, {_r}, "ReportX/Kategoriler", "kategoriler.%{_GUI::kategori}%.GUI.slotlar", yaml value "kategoriler.%{_GUI::kategori}%.GUI.genişlik" from "ReportX/Kategoriler", yaml value "kategoriler.%{_GUI::kategori}%.GUI.gui-ismi" from "ReportX/Kategoriler")
+function raporla(p: player, r: player, s: text, k: text):
+	set {_raporMesajı::*} to yaml list "rapor-mesajı" from "ReportX/mesajlar"
+	replace "%%prefix%%" with "%{ReportX::prefix}%" in {_raporMesajı::*}
+	replace "%%raporlayan%%" with "%{_p}%" in {_raporMesajı::*}
+	replace "%%raporlanan%%" with "%{_r}%" in {_raporMesajı::*}
+	replace "%%sebep%%" with "%{_s}%" in {_raporMesajı::*}
+	loop {ReportX::yetkililer::*}:
+		send colored {_raporMesajı::*} to loop-value parsed as player
+	send "%{ReportX::prefix}% &6Raporun iletildi!" to {_p}
 on load:
 	execute console command "reportx reload"

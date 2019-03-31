@@ -1,0 +1,15 @@
+yetkin-yok-mesajı: '%prefix% &cÜzgünüm, bu komutu kullanamazsın.'
+oyuncuya-yardım-mesajı:
+- '%prefix% &6Herhangi bir oyuncuyu raporlamak için: /rapor <oyuncu>'
+yetkiliye-yardım-mesajı:
+- '%prefix% &6Herhangi bir oyuncuyu raporlamak için: /rapor <oyuncu>'
+- '%prefix% &6Sistemin kendisini veya bir parçasını yenilemek için: /reportx reload'
+- '              &f● &c/reportx &ereload GUI'
+- '              &f● &c/reportx &ereload config'
+- '              &f● &c/reportx &ereload kategoriler'
+- '              &f● &c/reportx &ereload mesajlar'
+rapor-mesajı:
+- '%prefix% &6Yeni bir rapor var!'
+- '%prefix% &6Raporu gönderen: &a%raporlayan%'
+- '%prefix% &6Raporlanan: &a%raporlanan%'
+- '%prefix% &6Rapor sebebi: &a%sebep%'

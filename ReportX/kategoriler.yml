@@ -18,3 +18,45 @@ kategoriler:
                     slot: 0
                     tıklayınca:
                         yürüt: raporla
+                '2':
+                    eşya:
+                        materyal: book
+                        isim: Flight
+                        parlat: true
+                        açıklama:
+                        - ''
+                    rapor-sebebi: Flight
+                    slot: 0
+                    tıklayınca:
+                        yürüt: raporla
+    sohbet:
+        açıklama:
+        - '&7Sohbet kurallarını ihlal eden'
+        - '&7oyuncuları raporlamak için'
+        - '&7bu kategoriyi kullanabilirsiniz.'
+        GUI:
+            gui-ismi: 'Raporluyorsunuz: %raporlanan%'
+            genişlik: 1
+            slotlar:
+                '1':
+                    eşya:
+                        materyal: book
+                        isim: Küfür
+                        parlat: true
+                        açıklama:
+                        - ''
+                    rapor-sebebi: Küfür
+                    slot: 0
+                    tıklayınca:
+                        yürüt: raporla
+                '2':
+                    eşya:
+                        materyal: book
+                        isim: Hakaret
+                        parlat: true
+                        açıklama:
+                        - ''
+                    rapor-sebebi: Hakaret
+                    slot: 0
+                    tıklayınca:
+                        yürüt: raporla

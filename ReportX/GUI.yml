@@ -2,12 +2,23 @@ GUI:
     gui-ismi: 'Raporluyorsunuz: %raporlanan%'
     genişlik: 1
     slotlar:
-        x:
+        hile:
             eşya:
                 materyal: book
                 isim: 'Kategori: Hile'
                 parlat: true
                 açıklama: k-açıklama!hile
-            slot: 4
+            slot: 3
+            kategori: hile
             tıklayınca:
                 yürüt: kategori!hile
+        sohbet:
+            eşya:
+                materyal: book
+                isim: 'Kategori: Sohbet'
+                parlat: true
+                açıklama: k-açıklama!sohbet
+            slot: 5
+            kategori: sohbet
+            tıklayınca:
+                yürüt: kategori!sohbet
